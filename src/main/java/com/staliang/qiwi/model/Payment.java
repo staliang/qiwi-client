@@ -2,7 +2,6 @@ package com.staliang.qiwi.model;
 
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.util.Date;
 
 @Data
@@ -20,4 +19,6 @@ public class Payment {
     private Sum sum;
     private Sum commission;
     private Sum total;
+    private Provider provider;
+    private String comment;
 }
