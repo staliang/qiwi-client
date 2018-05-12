@@ -16,6 +16,9 @@ import static java.util.stream.Collectors.joining;
 public class PaymentsStatisticRequest {
     private final Date startDate;
     private final Date endDate;
+    private PaymentOperation operation;
+    private PaymentSource[] sources;
+
 
     @Override
     public String toString() {
@@ -24,6 +27,12 @@ public class PaymentsStatisticRequest {
         Map<String, Object> params = new HashMap<>();
         params.put("startDate", format.format(startDate));
         params.put("endDate", format.format(endDate));
+        params.put("operation", operation);
+        if (sources != null) {
+            for (int i = 0; i < sources.length; i++) {
+                params.put("sources[" + i + "]", sources[i]);
+            }
+        }
 
         return params.entrySet().stream()
                 .filter(e -> e.getValue() != null)
