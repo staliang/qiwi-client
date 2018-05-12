@@ -10,7 +10,7 @@ import static java.util.stream.Collectors.joining;
 
 @Data
 @Accessors(chain = true)
-public class GetPaymentsRequest {
+public class PaymentListRequest {
     private int rows;
     private Operation operation;
     private Source[] sources;

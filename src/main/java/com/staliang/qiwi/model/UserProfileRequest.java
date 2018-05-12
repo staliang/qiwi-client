@@ -10,7 +10,7 @@ import static java.util.stream.Collectors.joining;
 
 @Data
 @Accessors(chain = true)
-public class GetUserProfileRequest {
+public class UserProfileRequest {
     private boolean authInfoEnabled = true;
     private boolean contractInfoEnabled = true;
     private boolean userInfoEnabled = true;

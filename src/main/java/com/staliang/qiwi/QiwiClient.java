@@ -76,14 +76,19 @@ public class QiwiClient {
         }
     }
 
-    public UserProfile getUserProfile(GetUserProfileRequest request) throws IOException {
+    public UserProfile getUserProfile(UserProfileRequest request) throws IOException {
         String url = "https://edge.qiwi.com/person-profile/v1/profile/current?%s";
         return get(String.format(url, request), UserProfile.class);
     }
 
-    public PaymentList getPayments(String wallet, GetPaymentsRequest getPaymentsRequest) throws IOException {
+    public PaymentList getPayments(String wallet, PaymentListRequest getPaymentsRequest) throws IOException {
         String url = "https://edge.qiwi.com/payment-history/v2/persons/%s/payments?%s";
         return get(String.format(url, wallet, getPaymentsRequest), PaymentList.class);
+    }
+
+    public PaymentsStatistic getPaymentsStatistic(String wallet, PaymentsStatisticRequest request) throws IOException {
+        String url = "https://edge.qiwi.com/payment-history/v2/persons/%s/payments/total?%s";
+        return get(String.format(url, wallet, request), PaymentsStatistic.class);
     }
 
     public UserBalance getBalance() throws IOException {
