@@ -104,11 +104,10 @@ public class QiwiClient {
     public String getOperatorId(String phone) throws IOException {
         String url = "https://qiwi.com/mobile/detect.action";
         Map result = post(url, Collections.singletonMap("phone", phone), Map.class);
-        String message = (String) result.get("message");
 
+        String message = (String) result.get("message");
         Map<String, Object> code = (Map<String, Object>) result.get("code");
-        Object codeValue = code.get("value");
-        if ("0".equals(codeValue)) {
+        if ("0".equals(code.get("value"))) {
             return message;
         }
 
