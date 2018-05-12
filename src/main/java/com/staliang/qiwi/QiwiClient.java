@@ -2,7 +2,6 @@ package com.staliang.qiwi;
 
 import com.google.gson.Gson;
 import com.staliang.qiwi.exception.QiwiServiceException;
-import com.staliang.qiwi.exception.model.QiwiError;
 import com.staliang.qiwi.model.*;
 import lombok.RequiredArgsConstructor;
 import org.apache.http.NameValuePair;
@@ -27,6 +26,8 @@ import static java.util.stream.Collectors.toList;
 @RequiredArgsConstructor
 public class QiwiClient {
 
+    private static final String APPLICATION_JSON = "application/json";
+
     private final String token;
 
     private <T> T get(String url, Class<T> clazz) throws IOException {
@@ -37,7 +38,7 @@ public class QiwiClient {
 
             String entity = EntityUtils.toString(httpResponse.getEntity());
             if (httpResponse.getStatusLine().getStatusCode() != 200) {
-                throw new QiwiServiceException(new Gson().fromJson(entity, QiwiError.class));
+                throw new QiwiServiceException(new Gson().fromJson(entity, Map.class));
             }
             return new Gson().fromJson(entity, clazz);
         }
@@ -62,23 +63,22 @@ public class QiwiClient {
         try (CloseableHttpClient httpClient = HttpClientBuilder.create().build()) {
             HttpPost httpPost = new HttpPost(url);
             httpPost.setHeader("Authorization", "Bearer " + token);
-            httpPost.setHeader("Accept", "application/json");
-            httpPost.setHeader("Content-type", "application/json");
+            httpPost.setHeader("Accept", APPLICATION_JSON);
+            httpPost.setHeader("Content-type", APPLICATION_JSON);
             httpPost.setEntity(new StringEntity(new Gson().toJson(params)));
 
             CloseableHttpResponse httpResponse = httpClient.execute(httpPost);
             String entity = EntityUtils.toString(httpResponse.getEntity());
             if (httpResponse.getStatusLine().getStatusCode() != 200) {
-                Map<String, Object> message = new Gson().fromJson(entity, Map.class);
-                throw new RuntimeException((String) message.get("message"));
+                throw new QiwiServiceException(new Gson().fromJson(entity, Map.class));
             }
             return new Gson().fromJson(entity, clazz);
         }
     }
 
-    public PaymentList getPayments(String wallet, int rows) throws IOException {
-        String url = "https://edge.qiwi.com/payment-history/v2/persons/%s/payments?rows=%s";
-        return get(String.format(url, wallet, rows), PaymentList.class);
+    public PaymentList getPayments(String wallet, SearchPayment searchPayment) throws IOException {
+        String url = "https://edge.qiwi.com/payment-history/v2/persons/%s/payments?%s";
+        return get(String.format(url, wallet, searchPayment), PaymentList.class);
     }
 
     public UserBalance getBalance() throws IOException {
@@ -100,7 +100,7 @@ public class QiwiClient {
         throw new RuntimeException(message);
     }
 
-    public TransferResponse transferToPhone(String phone, BigDecimal amount) throws IOException {
+    public TransferResponse transfer(String phone, BigDecimal amount) throws IOException {
         String url = String.format("https://edge.qiwi.com/sinap/api/v2/terms/%s/payments", getOperatorId(phone));
         TransferRequest request = new TransferRequest()
                 .setId("" + System.currentTimeMillis())
