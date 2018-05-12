@@ -11,7 +11,7 @@ import static java.util.stream.Collectors.joining;
 @Data
 @Accessors(chain = true)
 public class PaymentListRequest {
-    private int rows;
+    private final int rows;
     private Operation operation;
     private Source[] sources;
 
