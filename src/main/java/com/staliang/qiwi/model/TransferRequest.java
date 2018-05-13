@@ -10,6 +10,7 @@ public class TransferRequest {
     private Sum sum;
     private PaymentMethod paymentMethod = new PaymentMethod();
     private Fields fields;
+    private String comment;
 
     @Data
     private class PaymentMethod {

@@ -3,7 +3,6 @@ package com.staliang.qiwi;
 import com.google.gson.Gson;
 import com.staliang.qiwi.exception.QiwiServiceException;
 import com.staliang.qiwi.model.*;
-import lombok.RequiredArgsConstructor;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -23,17 +22,22 @@ import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
 
-@RequiredArgsConstructor
 public class QiwiClient {
 
     private static final String APPLICATION_JSON = "application/json";
 
     private final String token;
+    private final String bearerToken;
+
+    public QiwiClient(String token) {
+        this.token = token;
+        this.bearerToken = "Bearer " + token;
+    }
 
     private <T> T get(String url, Class<T> clazz) throws IOException {
         try (CloseableHttpClient httpClient = HttpClientBuilder.create().build()) {
             HttpGet httpGet = new HttpGet(url);
-            httpGet.setHeader("Authorization", "Bearer " + token);
+            httpGet.setHeader("Authorization", bearerToken);
             CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
 
             String entity = EntityUtils.toString(httpResponse.getEntity());
@@ -47,7 +51,7 @@ public class QiwiClient {
     private <T> T post(String url, Map<String, String> params, Class<T> clazz) throws IOException {
         try (CloseableHttpClient httpClient = HttpClientBuilder.create().build()) {
             HttpPost httpPost = new HttpPost(url);
-            httpPost.setHeader("Authorization", "Bearer " + token);
+            httpPost.setHeader("Authorization", bearerToken);
             List<NameValuePair> formData = params.entrySet().stream()
                     .map(e -> new BasicNameValuePair(e.getKey(), e.getValue()))
                     .collect(toList());
@@ -62,7 +66,7 @@ public class QiwiClient {
     private <T> T post(String url, Object params, Class<T> clazz) throws IOException {
         try (CloseableHttpClient httpClient = HttpClientBuilder.create().build()) {
             HttpPost httpPost = new HttpPost(url);
-            httpPost.setHeader("Authorization", "Bearer " + token);
+            httpPost.setHeader("Authorization", bearerToken);
             httpPost.setHeader("Accept", APPLICATION_JSON);
             httpPost.setHeader("Content-type", APPLICATION_JSON);
             httpPost.setEntity(new StringEntity(new Gson().toJson(params)));
@@ -101,7 +105,17 @@ public class QiwiClient {
         return get(url, UserBalance.class);
     }
 
-    public String getOperatorId(String phone) throws IOException {
+    public TransferResponse transferToQiwi(String wallet, BigDecimal amount, String comment) throws IOException {
+        String url = "https://edge.qiwi.com/sinap/api/v2/terms/99/payments";
+        TransferRequest request = new TransferRequest()
+                .setId("" + System.currentTimeMillis())
+                .setSum(new Sum(amount, "643"))
+                .setFields(new Fields(wallet))
+                .setComment(comment);
+        return post(url, request, TransferResponse.class);
+    }
+
+    private String getOperatorId(String phone) throws IOException {
         String url = "https://qiwi.com/mobile/detect.action";
         Map result = post(url, Collections.singletonMap("phone", phone), Map.class);
 
