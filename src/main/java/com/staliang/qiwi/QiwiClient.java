@@ -128,12 +128,34 @@ public class QiwiClient {
         throw new RuntimeException(message);
     }
 
-    public TransferResponse transfer(String phone, BigDecimal amount) throws IOException {
+    public TransferResponse transferToPhone(String phone, BigDecimal amount) throws IOException {
         String url = String.format("https://edge.qiwi.com/sinap/api/v2/terms/%s/payments", getOperatorId(phone));
         TransferRequest request = new TransferRequest()
                 .setId("" + System.currentTimeMillis())
                 .setSum(new Sum(amount, "643"))
                 .setFields(new Fields(phone.substring(2, phone.length())));
+        return post(url, request, TransferResponse.class);
+    }
+
+    private String getCardId(String cardNumber) throws IOException {
+        String url = "https://qiwi.com/card/detect.action";
+        Map result = post(url, Collections.singletonMap("cardNumber", cardNumber), Map.class);
+
+        String message = (String) result.get("message");
+        Map<String, Object> code = (Map<String, Object>) result.get("code");
+        if ("0".equals(code.get("value"))) {
+            return message;
+        }
+
+        throw new RuntimeException(message);
+    }
+
+    public TransferResponse transferToCard(String cardNumber, BigDecimal amount) throws IOException {
+        String url = String.format("https://edge.qiwi.com/sinap/api/v2/terms/%s/payments", getCardId(cardNumber));
+        TransferRequest request = new TransferRequest()
+                .setId("" + System.currentTimeMillis())
+                .setSum(new Sum(amount, "643"))
+                .setFields(new Fields(cardNumber));
         return post(url, request, TransferResponse.class);
     }
 }
