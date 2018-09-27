@@ -12,7 +12,8 @@ import static org.junit.Assert.assertNotNull;
 
 public class QiwiClientTest {
 
-    private QiwiClient qiwiClient = new QiwiClient("5c89d74db04ad3d72eec1e908f629e37");
+    private static final String WALLET = System.getProperty("wallet");
+    private static final QiwiClient qiwiClient = new QiwiClient(System.getProperty("token"));
 
     @Test
     public void getUserProfile() throws IOException {
@@ -22,18 +23,18 @@ public class QiwiClientTest {
 
     @Test
     public void getPaymentsHistory() throws IOException {
-        PaymentsHistory payments = qiwiClient.getPaymentsHistory("79120148398", new PaymentsHistoryRequest(50));
+        PaymentsHistory payments = qiwiClient.getPaymentsHistory(WALLET, new PaymentsHistoryRequest(50));
         assertNotNull(payments);
     }
 
     @Test(expected = QiwiServiceException.class)
     public void getPaymentsHistoryFail() throws IOException {
-        qiwiClient.getPaymentsHistory("79120148398", new PaymentsHistoryRequest(200));
+        qiwiClient.getPaymentsHistory(WALLET, new PaymentsHistoryRequest(200));
     }
 
     @Test
     public void getPaymentsStatistic() throws IOException {
-        PaymentsStatistic statistic = qiwiClient.getPaymentsStatistic("79120148398", new PaymentsStatisticRequest(new Date(), new Date()));
+        PaymentsStatistic statistic = qiwiClient.getPaymentsStatistic(WALLET, new PaymentsStatisticRequest(new Date(), new Date()));
         assertNotNull(statistic);
     }
 
@@ -47,5 +48,10 @@ public class QiwiClientTest {
     public void getBalance() throws IOException {
         UserBalance balance = qiwiClient.getBalance();
         assertNotNull(balance);
+    }
+
+    @Test
+    public void transferToPhone() throws IOException {
+        qiwiClient.transferToPhone("+79090594340", BigDecimal.ONE);
     }
 }

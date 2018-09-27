@@ -24,20 +24,19 @@ import static java.util.stream.Collectors.toList;
 
 public class QiwiClient {
 
+    private static final String AUTHORIZATION = "Authorization";
     private static final String APPLICATION_JSON = "application/json";
 
-    private final String token;
     private final String bearerToken;
 
     public QiwiClient(String token) {
-        this.token = token;
         this.bearerToken = "Bearer " + token;
     }
 
     private <T> T get(String url, Class<T> clazz) throws IOException {
         try (CloseableHttpClient httpClient = HttpClientBuilder.create().build()) {
             HttpGet httpGet = new HttpGet(url);
-            httpGet.setHeader("Authorization", bearerToken);
+            httpGet.setHeader(AUTHORIZATION, bearerToken);
             CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
 
             String entity = EntityUtils.toString(httpResponse.getEntity());
@@ -51,7 +50,7 @@ public class QiwiClient {
     private <T> T post(String url, Map<String, String> params, Class<T> clazz) throws IOException {
         try (CloseableHttpClient httpClient = HttpClientBuilder.create().build()) {
             HttpPost httpPost = new HttpPost(url);
-            httpPost.setHeader("Authorization", bearerToken);
+            httpPost.setHeader(AUTHORIZATION, bearerToken);
             List<NameValuePair> formData = params.entrySet().stream()
                     .map(e -> new BasicNameValuePair(e.getKey(), e.getValue()))
                     .collect(toList());
@@ -66,7 +65,7 @@ public class QiwiClient {
     private <T> T post(String url, Object params, Class<T> clazz) throws IOException {
         try (CloseableHttpClient httpClient = HttpClientBuilder.create().build()) {
             HttpPost httpPost = new HttpPost(url);
-            httpPost.setHeader("Authorization", bearerToken);
+            httpPost.setHeader(AUTHORIZATION, bearerToken);
             httpPost.setHeader("Accept", APPLICATION_JSON);
             httpPost.setHeader("Content-type", APPLICATION_JSON);
             httpPost.setEntity(new StringEntity(new Gson().toJson(params)));
@@ -125,7 +124,7 @@ public class QiwiClient {
             return message;
         }
 
-        throw new RuntimeException(message);
+        throw new QiwiServiceException(Collections.singletonMap("message", message));
     }
 
     public TransferResponse transferToPhone(String phone, BigDecimal amount) throws IOException {
