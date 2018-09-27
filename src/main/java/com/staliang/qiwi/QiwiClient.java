@@ -147,7 +147,7 @@ public class QiwiClient {
             return message;
         }
 
-        throw new RuntimeException(message);
+        throw new QiwiServiceException(Collections.singletonMap("message", message));
     }
 
     public TransferResponse transferToCard(String cardNumber, BigDecimal amount) throws IOException {
