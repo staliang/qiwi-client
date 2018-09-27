@@ -23,7 +23,7 @@ Client's implementation [QIWI API](https://developer.qiwi.com/ru/qiwi-wallet-per
     <dependency>
         <groupId>com.staliang</groupId>
         <artifactId>qiwi-client</artifactId>
-        <version>1.0</version>
+        <version>1.1</version>
     </dependency>
 </dependencies>
 ```
