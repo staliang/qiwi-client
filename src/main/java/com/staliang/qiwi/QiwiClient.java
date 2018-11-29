@@ -157,4 +157,10 @@ public class QiwiClient {
                 .setFields(new Fields(cardNumber));
         return post(url, request, TransferResponse.class);
     }
+
+    public BigDecimal getCommissionForTransferToPhone(String phone, BigDecimal amount) throws IOException {
+        String url = String.format("https://edge.qiwi.com/sinap/providers/%s/onlineCommission", getOperatorId(phone));
+        GetCommissionRequest request = new GetCommissionRequest(phone, amount);
+        return post(url, request, GetCommisionResponse.class).getQwCommission().getAmount();
+    }
 }

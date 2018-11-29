@@ -54,4 +54,9 @@ public class QiwiClientTest {
     public void transferToPhone() throws IOException {
         qiwiClient.transferToPhone("+79090594340", BigDecimal.ONE);
     }
+
+    @Test
+    public void getCommissionForTransferToPhone() throws IOException {
+        qiwiClient.getCommissionForTransferToPhone("+79090594340", BigDecimal.ONE);
+    }
 }
